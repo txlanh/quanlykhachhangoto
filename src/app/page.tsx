@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, AlertCircle, Clock, ChevronRight, Car, Search, Filter } from "lucide-react";
+import { Plus, AlertCircle, ChevronRight, Car, Search, Filter } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Customer } from "@/types";
 import { differenceInDays } from "date-fns";
@@ -11,7 +11,7 @@ import { calculateProgress } from "@/lib/utils";
 export default function Home() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'referencing' | 'processing' | 'completed'>('all');
+  const [filter, setFilter] = useState<'attention' | 'all' | 'referencing' | 'processing' | 'completed'>('attention');
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchCustomers = async () => {
@@ -35,7 +35,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchCustomers();
-    
+
     // Subscribe to realtime updates
     const subscription = supabase
       .channel('customers_channel')
@@ -61,9 +61,9 @@ export default function Home() {
         <div className="max-w-md mx-auto px-4 pb-3">
           <div className="relative">
             <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input 
-              type="text" 
-              placeholder="Tìm kiếm tên, số điện thoại..." 
+            <input
+              type="text"
+              placeholder="Tìm kiếm tên, số điện thoại..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-gray-50 border border-gray-100 rounded-xl pl-10 pr-4 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-gray-400"
@@ -72,6 +72,7 @@ export default function Home() {
         </div>
         <div className="max-w-md mx-auto px-4 pb-0">
           <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-3">
+            <button onClick={() => setFilter('attention')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'attention' ? 'bg-red-500 text-white shadow-md shadow-red-200' : 'bg-gray-100 text-gray-600'}`}>Nhắc nhở</button>
             <button onClick={() => setFilter('all')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'all' ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'bg-gray-100 text-gray-600'}`}>Tất cả</button>
             <button onClick={() => setFilter('referencing')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'referencing' ? 'bg-orange-500 text-white shadow-md shadow-orange-200' : 'bg-gray-100 text-gray-600'}`}>Đang tham khảo</button>
             <button onClick={() => setFilter('processing')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'processing' ? 'bg-blue-500 text-white shadow-md shadow-blue-200' : 'bg-gray-100 text-gray-600'}`}>Đang thủ tục</button>
@@ -94,9 +95,12 @@ export default function Home() {
                 return false;
               }
             }
-            
+
             // Tab filter
             const { percentage } = calculateProgress(customer);
+            const needsAttention = isNeedsAttention(customer, percentage);
+
+            if (filter === 'attention') return needsAttention;
             if (filter === 'all') return true;
             if (filter === 'referencing') return percentage === 0;
             if (filter === 'processing') return percentage > 0 && percentage < 100;
@@ -133,16 +137,16 @@ export default function Home() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="mt-4 flex items-center justify-between text-sm">
-                    <span className="text-gray-500 font-medium">
+                    <span className={`font-semibold px-2 py-0.5 rounded-md ${customer.customer_type === 'cash' ? 'bg-emerald-50 text-emerald-600' : 'bg-purple-50 text-purple-600'}`}>
                       {customer.customer_type === 'cash' ? 'Trả thẳng' : 'Trả góp'}
                     </span>
                     <span className="font-bold text-blue-600">{percentage}%</span>
                   </div>
-                  
+
                   <div className="w-full bg-gray-100 rounded-full h-2 mt-2">
-                    <div 
+                    <div
                       className={`h-2 rounded-full transition-all duration-500 ${percentage === 100 ? 'bg-green-500' : 'bg-blue-600'}`}
                       style={{ width: `${percentage}%` }}
                     ></div>
@@ -154,7 +158,7 @@ export default function Home() {
         })()}
       </div>
 
-      <Link 
+      <Link
         href="/new"
         className="fixed p-4 bg-blue-600 text-white rounded-full shadow-xl shadow-blue-200 bottom-8 right-6 active:scale-95 transition-transform"
       >
