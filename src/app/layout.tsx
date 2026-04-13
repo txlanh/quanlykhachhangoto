@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   title: "Quản Lý Khách Hàng",
   description: "Ứng dụng quản lý bán xe ô tô",
   manifest: "/manifest.json",
+  icons: {
+    icon: '/icon-192x192.png',
+    apple: '/icon-192x192.png', // Thêm dòng này để iPhone nhận logo
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
