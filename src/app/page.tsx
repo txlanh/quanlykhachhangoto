@@ -13,6 +13,39 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'attention' | 'all' | 'referencing' | 'processing' | 'completed'>('attention');
   const [searchQuery, setSearchQuery] = useState('');
+  // --- LOGIC XỬ LÝ VUỐT (SWIPE) ---
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe || isRightSwipe) {
+      const tabs = ['attention', 'all', 'referencing', 'processing', 'completed'] as const;
+      const currentIndex = tabs.indexOf(filter);
+
+      if (isLeftSwipe && currentIndex < tabs.length - 1) {
+        setFilter(tabs[currentIndex + 1]);
+      }
+      if (isRightSwipe && currentIndex > 0) {
+        setFilter(tabs[currentIndex - 1]);
+      }
+    }
+  };
+  // --- KẾT THÚC LOGIC XỬ LÝ VUỐT ---
 
   const fetchCustomers = async () => {
     try {
@@ -81,7 +114,12 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="max-w-md mx-auto p-4 space-y-4">
+      <div
+        className="max-w-md mx-auto p-4 space-y-4"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
