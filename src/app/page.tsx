@@ -18,6 +18,15 @@ export default function Home() {
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const minSwipeDistance = 50;
 
+  // Hàm mới: Vừa đổi filter, vừa cuộn tab đó ra giữa màn hình
+  const handleSetFilter = (newFilter: typeof filter) => {
+    setFilter(newFilter);
+    const element = document.getElementById(`tab-${newFilter}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  };
+
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
@@ -38,10 +47,10 @@ export default function Home() {
       const currentIndex = tabs.indexOf(filter);
 
       if (isLeftSwipe && currentIndex < tabs.length - 1) {
-        setFilter(tabs[currentIndex + 1]);
+        handleSetFilter(tabs[currentIndex + 1]); // Dùng hàm mới
       }
       if (isRightSwipe && currentIndex > 0) {
-        setFilter(tabs[currentIndex - 1]);
+        handleSetFilter(tabs[currentIndex - 1]); // Dùng hàm mới
       }
     }
   };
@@ -110,11 +119,11 @@ export default function Home() {
         </div>
         <div className="max-w-md mx-auto px-4 pb-0">
           <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-3">
-            <button onClick={() => setFilter('attention')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'attention' ? 'bg-red-500 text-white shadow-md shadow-red-200' : 'bg-gray-100 text-gray-600'}`}>Nhắc nhở</button>
-            <button onClick={() => setFilter('all')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'all' ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'bg-gray-100 text-gray-600'}`}>Tất cả</button>
-            <button onClick={() => setFilter('referencing')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'referencing' ? 'bg-orange-500 text-white shadow-md shadow-orange-200' : 'bg-gray-100 text-gray-600'}`}>Đang tham khảo</button>
-            <button onClick={() => setFilter('processing')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'processing' ? 'bg-blue-500 text-white shadow-md shadow-blue-200' : 'bg-gray-100 text-gray-600'}`}>Đang thủ tục</button>
-            <button onClick={() => setFilter('completed')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'completed' ? 'bg-green-500 text-white shadow-md shadow-green-200' : 'bg-gray-100 text-gray-600'}`}>Đã giao xe</button>
+            <button id="tab-attention" onClick={() => handleSetFilter('attention')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'attention' ? 'bg-red-500 text-white shadow-md shadow-red-200' : 'bg-gray-100 text-gray-600'}`}>Nhắc nhở</button>
+            <button id="tab-all" onClick={() => handleSetFilter('all')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'all' ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'bg-gray-100 text-gray-600'}`}>Tất cả</button>
+            <button id="tab-referencing" onClick={() => handleSetFilter('referencing')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'referencing' ? 'bg-orange-500 text-white shadow-md shadow-orange-200' : 'bg-gray-100 text-gray-600'}`}>Đang tham khảo</button>
+            <button id="tab-processing" onClick={() => handleSetFilter('processing')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'processing' ? 'bg-blue-500 text-white shadow-md shadow-blue-200' : 'bg-gray-100 text-gray-600'}`}>Đang thủ tục</button>
+            <button id="tab-completed" onClick={() => handleSetFilter('completed')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${filter === 'completed' ? 'bg-green-500 text-white shadow-md shadow-green-200' : 'bg-gray-100 text-gray-600'}`}>Đã giao xe</button>
           </div>
         </div>
       </div>
