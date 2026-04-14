@@ -86,7 +86,12 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 pb-24">
+    <main
+      className="min-h-screen bg-gray-50 pb-24"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       <div className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900 tracking-tight">Danh sách khách hàng</h1>
@@ -115,11 +120,7 @@ export default function Home() {
       </div>
 
       <div
-        className="max-w-md mx-auto p-4 space-y-4"
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-      >
+        className="max-w-md mx-auto p-4 space-y-4">
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
